@@ -1,0 +1,27 @@
+version: "3.3"
+services:
+  cockroach_master:
+    image: cockroachdb/cockroach:v2.1.0
+    command:
+      - "start"
+      - "--insecure"
+    ports:
+      - 26257:26257
+      - 8080:8080
+    volumes:
+      - cockroach_master:/cockroach/cockroach-data
+
+  cockroach_replica:
+    image: cockroachdb/cockroach:v2.1.0
+    command:
+      - "start"
+      - "--insecure"
+      - "--join=cockroach_master"
+    volumes:
+      - cockroach_replica:/cockroach/cockroach-data
+    depends_on:
+      - cockroach_master
+
+volumes:
+  cockroach_master:
+  cockroach_replica:
