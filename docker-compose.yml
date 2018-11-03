@@ -1,27 +1,48 @@
 version: "3.3"
 services:
-  cockroach_master:
+  cockroach_1:
     image: cockroachdb/cockroach:v2.1.0
     command:
       - "start"
       - "--insecure"
-    ports:
-      - 26257:26257
-      - 8080:8080
+      - "--join=cockroach_1,cockroach_2,cockroach_3"
     volumes:
-      - cockroach_master:/cockroach/cockroach-data
+      - cockroach_1:/cockroach/cockroach-data
 
-  cockroach_replica:
+  cockroach_2:
     image: cockroachdb/cockroach:v2.1.0
     command:
       - "start"
       - "--insecure"
-      - "--join=cockroach_master"
+      - "--join=cockroach_1,cockroach_2,cockroach_3"
     volumes:
-      - cockroach_replica:/cockroach/cockroach-data
+      - cockroach_2:/cockroach/cockroach-data
+
+  cockroach_3:
+    image: cockroachdb/cockroach:v2.1.0
+    command:
+      - "start"
+      - "--insecure"
+      - "--join=cockroach_1,cockroach_2,cockroach_3"
+    volumes:
+      - cockroach_3:/cockroach/cockroach-data
+
+  cockroach_init:
+    image: cockroachdb/cockroach:v2.1.0
+    command:
+      - "init"
+      - "--insecure"
+      - "--host=cockroach_1"
     depends_on:
-      - cockroach_master
+      - cockroach_1
+      - cockroach_2
+      - cockroach_3
+
+  cockroach_client:
+    image: cockroachdb/cockroach:v2.1.0
+    entrypoint: "bash"
 
 volumes:
-  cockroach_master:
-  cockroach_replica:
+  cockroach_1:
+  cockroach_2:
+  cockroach_3:
